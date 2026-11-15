@@ -1,0 +1,327 @@
+\documentclass[final]{beamer}
+
+% Poster, theme, and typography
+\usepackage[orientation=portrait,size=a0,scale=0.95]{beamerposter}
+\usetheme{kouci}
+\usepackage{fontspec}
+\defaultfontfeatures{Ligatures=TeX}
+\input{font-config.tex}
+\IfFontExistsTF{\ProjectFont}{
+  \setsansfont{\ProjectFont}[AutoFakeBold=2,AutoFakeSlant=.2]
+  \renewcommand{\familydefault}{\sfdefault}
+}{
+  \PackageWarning{kouci-poster}{Font `\ProjectFont' unavailable; using Latin Modern Sans}
+}
+
+\usepackage{booktabs,array,tabularx,ragged2e}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usepackage{hyperref}
+
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\renewcommand{\arraystretch}{1.18}
+
+% Two-column poster grid
+\newlength{\sepwidth}
+\newlength{\colwidth}
+\setlength{\sepwidth}{0.025\paperwidth}
+\setlength{\colwidth}{0.45\paperwidth}
+\newcommand{\separatorcolumn}{\begin{column}{\sepwidth}\end{column}}
+
+% Document metadata
+\title{Kouci Android Application Threat Model}
+\author{Attack Effort and Defender Cost of Client-Side Protections}
+\institute{MSc in Cybersecurity, University of Minho \samelineand Supervisor: Vítor Fonte}
+\logoleft{}
+\logoright{\includegraphics[height=7.5cm]{assets/kouci-logo.png}}
+\footercontent{
+  \textbf{Dissertation research artefact} \hfill
+  Version 0.1 \;·\; 7 November 2026 \hfill
+  \textbf{Proposed model --- results not yet validated}}
+
+% Architecture diagram styles
+\tikzset{
+  threatnode/.style={rectangle,rounded corners=2mm,minimum width=9cm,
+    minimum height=2.5cm,text centered,text width=8.2cm,draw=KouciLine,
+    line width=1pt,fill=KouciWhite,text=KouciInk},
+  securitynode/.style={threatnode,draw=KouciSage,fill=KouciPale},
+  attackernode/.style={threatnode,draw=KouciSage,fill=KouciDeep,text=KouciWhite},
+  flow/.style={-{Latex[length=4mm]},very thick,draw=KouciOlive},
+  hostile/.style={-{Latex[length=4mm]},very thick,dashed,draw=KouciMuted}
+}
+
+\begin{document}
+\begin{frame}[t]
+\begin{columns}[t]
+\separatorcolumn
+
+% ================================================================
+% LEFT COLUMN --- context, architecture, assets, adversary, threats
+% ================================================================
+\begin{column}{\colwidth}
+
+\begin{alertblock}{Central security premise}
+  The Android application executes on a device controlled by an attacker.
+  Local controls may increase the effort required for a specific attack, but
+  cannot be assumed to provide absolute resistance to inspection, modification,
+  repackaging, or runtime observation.
+\end{alertblock}
+
+\begin{block}{Purpose and scope}
+  This model defines a controlled Android testbed reproducing two
+  security-sensitive Kouci workflows: local enforcement of a paid feature and
+  local storage and processing of a fixed synthetic scouting dataset. The study
+  measures observed attacker effort and defender cost for three independent
+  protections: \textbf{R8 obfuscation}, \textbf{local APK signing-certificate
+  verification}, and \textbf{Android Keystore-backed encryption}.
+
+  \heading{In scope}
+  \begin{itemize}
+    \item Baselines without the evaluated controls; synthetic data is plaintext.
+    \item Separate R8, certificate-check, and Keystore variants.
+    \item License bypass by static, modification, repackaging, or runtime routes.
+    \item Dataset recovery through at-rest extraction and runtime interception.
+    \item Attack effort, implementation effort, APK size, startup, and data-access cost.
+  \end{itemize}
+
+  \heading{Minimum-scope exclusions}
+  Production licensing services, real customer or team data, comprehensive
+  commercial hardening, continuous online checks, white-box cryptography,
+  iOS/desktop evaluation, and cumulative combinations of controls.
+\end{block}
+
+\begin{block}{System under study and trust boundaries}
+  Kouci is an offline-first water polo analytics application. Because selected
+  authorization decisions and data processing occur locally, the device owner
+  can inspect the APK and may observe or modify execution.
+
+  \begin{center}
+  \begin{tikzpicture}[node distance=1.15cm and 1.1cm]
+    \node[attackernode] (att) {Attacker-controlled\\Android device};
+    \node[threatnode,below=of att] (apk) {TB1 · APK / locally executed code};
+    \node[securitynode,below left=of apk] (lic) {TB2 · Local license\\decision};
+    \node[threatnode,below=of lic] (paid) {Restricted paid\\functionality};
+    \node[securitynode,below right=of apk] (proc) {TB3 · Application process\\and data processing};
+    \node[threatnode,below left=of proc] (data) {Local scouting\\dataset};
+    \node[securitynode,below right=of proc] (ks) {TB4 · Android\\Keystore};
+    \draw[hostile] (att) -- (apk);
+    \draw[flow] (apk) -- (lic);
+    \draw[flow] (lic) -- (paid);
+    \draw[flow] (apk) -- (proc);
+    \draw[flow] (data) -- (proc);
+    \draw[flow,<->] (proc) -- (ks);
+  \end{tikzpicture}
+  \end{center}
+
+  \small
+  \begin{tabularx}{\linewidth}{@{}L{2.2cm}Y Y@{}}
+    \toprule
+    \textbf{ID} & \textbf{What crosses the boundary} & \textbf{Relevant risk} \\
+    \midrule
+    TB1 & APK, code, resources & Inspection, patching, repackaging \\
+    TB2 & Authorization decision & Decision bypass or replacement \\
+    TB3 & Stored and decrypted data & At-rest extraction; runtime disclosure \\
+    TB4 & Key-use request and output & Key protection does not protect plaintext in-process \\
+    TB5 & Package/signature information & Local verification may itself be altered \\
+    \bottomrule
+  \end{tabularx}
+\end{block}
+
+
+\begin{block}{Assets and security objectives}
+  \small
+  \begin{tabularx}{\linewidth}{@{}L{2cm}L{10cm}L{8.4cm}Y@{}}
+    \toprule
+    \textbf{ID} & \textbf{Asset} & \textbf{Property} & \textbf{Role} \\
+    \midrule
+    A1 & Paid-feature entitlement & Authorization integrity & Primary G1 asset \\
+    A2 & License-decision logic & Integrity & Supports A1 \\
+    A3 & Complete synthetic dataset & Confidentiality & Primary G2 asset \\
+    A4 & Keystore key material & Confidentiality; non-exportability & Supports A3 \\
+    A5 & Signing identity / certificate check & Integrity; authenticity signal & Detects some repackaging \\
+    A6 & Research logs and evidence & Integrity; traceability & Credible measurement \\
+    \bottomrule
+  \end{tabularx}
+\end{block}
+
+\begin{block}{Adversary model}
+  The attacker possesses the APK and controls its execution device. Root,
+  bootloader state, debugging, instrumentation, process-memory access,
+  authentication, and connectivity are \textbf{recorded preconditions}, not
+  silent universal assumptions.
+
+  \begin{columns}[t,totalwidth=\linewidth]
+    \begin{column}{0.48\linewidth}
+      \heading{G1 · License bypass}
+      Make the specified paid feature function without a valid license.
+    \end{column}
+    \begin{column}{0.48\linewidth}
+      \heading{G2 · Dataset recovery}
+      Recover the complete fixed dataset in plaintext outside authorized flows.
+    \end{column}
+  \end{columns}
+
+  \heading{Researcher-as-attacker}
+  The same knowledgeable, non-independent analyst implements and attacks the
+  variants. Source familiarity and knowledge carryover must be logged; results
+  characterize this analyst, these builds, and these conditions rather than a
+  general attacker population.
+\end{block}
+
+\begin{block}{Threat catalogue}
+  \small
+  \begin{tabularx}{\linewidth}{@{}L{2cm}Y L{3cm}L{7cm}@{}}
+    \toprule
+    \textbf{ID} & \textbf{Threat / attack path} & \textbf{Goal} & \textbf{Variants} \\
+    \midrule
+    T01 & Static analysis identifies licensing logic & G1 & V0, V1-R8 \\
+    T02 & Authorization logic or relevant state is patched & G1 & V0, V1-R8, V2-SIG \\
+    T03 & Modified APK is repackaged and re-signed & G1 & V2-SIG \\
+    T04 & Runtime execution or state is manipulated & G1 & V0, V1-R8, V2-SIG \\
+    T05 & Full dataset is extracted from stored files & G2 & V0, V3-KS \\
+    T06 & Full plaintext dataset is intercepted in-process & G2 & V0, V3-KS \\
+    T07 & Keystore key material is targeted & G2 support & V3-KS \\
+    \bottomrule
+  \end{tabularx}
+\end{block}
+
+\end{column}
+
+\separatorcolumn
+
+% ================================================================
+% RIGHT COLUMN --- scenarios, variants, evaluation, evidence, validity
+% ================================================================
+\begin{column}{\colwidth}
+
+\begin{block}{Attack scenarios and success criteria}
+  \heading{LIC-01 · Unauthorized paid-feature activation}
+  \textbf{Success:} designated functionality demonstrably operates with an
+  absent or invalid license, with evidence tied to the build and license state.
+  Locating a check, producing a crashing APK, or changing only the UI is insufficient.
+
+  \heading{DATA-REST-01 · Full recovery from storage}
+  \textbf{Success:} the complete plaintext dataset matches the authoritative
+  synthetic reference and is recovered through an unauthorized route without
+  executing the app during extraction. Ciphertext, aggregates, filenames, or a
+  subset of records are insufficient.
+
+  \heading{DATA-RUNTIME-01 · Full recovery during processing}
+  \textbf{Success:} the complete reference dataset is reconstructed in plaintext
+  outside the intended UI/export path while the app processes it, including
+  after decryption in V3-KS. Runtime success does not imply direct key extraction.
+\end{block}
+
+\begin{block}{Independent protection variants}
+  \small
+  \begin{tabularx}{\linewidth}{@{}L{3.2cm}L{8cm}Y Y@{}}
+    \toprule
+    \textbf{Variant} & \textbf{Modification} & \textbf{Intended contribution} & \textbf{Key limitation} \\
+    \midrule
+    V0 & No evaluated controls; plaintext data & Reference condition & No protection from tested mechanisms \\
+    V1-R8 & R8 with settings recorded & Raise analysis / patching effort & Not confidentiality or absolute anti-tamper \\
+    V2-SIG & Compare installed certificate with expected value & Detect some repackaging / re-signing & Local check may be bypassed \\
+    V3-KS & Encrypt data with non-exportable Keystore key & Protect at-rest data and key material & Plaintext exists during processing \\
+    \bottomrule
+  \end{tabularx}
+
+  Variants are not cumulative. Dataset, behavior, device, and unrelated settings
+  remain fixed where possible; every variant-specific change is logged.
+\end{block}
+
+\begin{block}{Evaluation matrix}
+  \small
+  \begin{tabularx}{\linewidth}{@{}L{2cm}L{2.2cm}L{4cm}Y@{}}
+    \toprule
+    \textbf{Exp.} & \textbf{Goal} & \textbf{Target} & \textbf{Required outcome} \\
+    \midrule
+    E1 & G1 & V0 & Paid feature operates without valid license \\
+    E2 & G1 & V1-R8 & Same functional proof as E1 \\
+    E3 & G1 & V2-SIG & Same functional proof as E1 \\
+    E4a & G2 & V0 at rest & Complete reference dataset recovered as plaintext \\
+    E4b & G2 & V0 runtime & Complete reference dataset recovered as plaintext \\
+    E5a & G2 & V3-KS at rest & Complete reference dataset recovered as plaintext \\
+    E5b & G2 & V3-KS runtime & Complete reference dataset recovered as plaintext \\
+    \bottomrule
+  \end{tabularx}
+\end{block}
+
+\begin{alertblock}{Pilot and protocol freeze}
+  Conduct a pilot on a separate training sample and exclude pilot times. Before
+  any baseline or protected measurement, freeze variant order, permitted tool
+  classes, adaptation rules, active-time budget \textbf{T}, start/stop criteria,
+  proof requirements, datasets, hardware, build settings, and repetition plan.
+  Identify and justify every later deviation.
+\end{alertblock}
+
+\begin{block}{Experimental controls, measures, and evidence}
+  Each attempt records its ID and goal, variant and APK hash, device and Android
+  version, root/bootloader/debuggable state, instrumentation availability,
+  dataset and license state, Keystore configuration/security level,
+  connectivity, permitted tools, analyst prior knowledge, and start/stop state.
+
+  \heading{Attacker-side measures}
+  Outcome; active hands-on effort; steps; tool classes; static/dynamic necessity;
+  obstacles; scripts or patches; privileges and authentication; knowledge
+  carryover. An attempt stopped at T is reported as \textbf{``unsuccessful within
+  T active hours''}, not as a measured success time of T.
+
+  \heading{Defender-side measures}
+  Separate learning and integration time; APK size; and startup/data-access time
+  under cold and warm conditions with repetitions, median, and dispersion.
+
+  \heading{Minimum evidence package}
+  \texttt{metadata.md}, \texttt{activity-log.csv}, \texttt{observations.md},
+  hashes/screenshots/logs/extracted artifacts, and \texttt{result.md}. No real
+  team or client data is permitted.
+\end{block}
+
+\begin{block}{Interpretation and threats to validity}
+  \begin{itemize}
+    \item \textbf{Construct:} require functional paid access and full-dataset equality;
+      distinguish active, elapsed, learning, and integration time.
+    \item \textbf{Internal:} developer knowledge, attack order, pilot practice, and
+      unrelated environmental differences may change observed difficulty.
+    \item \textbf{External:} one analyst, one simplified app, and one device do not
+      represent all attackers, Android apps, hardware, or OS configurations.
+    \item \textbf{Security:} R8 is not a confidentiality boundary; a certificate
+      check is modifiable local logic; Keystore non-exportability does not protect
+      plaintext after decryption in a compromised process.
+  \end{itemize}
+
+  \textbf{Interpretation boundary:} observed differences do not establish the
+  general causal effect of a control. They characterize the tested builds and
+  conditions with this analyst.
+\end{block}
+
+\begin{exampleblock}{Decisions to finalize before measurement}
+  \begin{itemize}
+    \item Exact paid feature, synthetic dataset, and equality procedure.
+    \item Device, Android version, root state, and instrumentation/tool categories.
+    \item Keystore configuration, authentication, and security-level reporting.
+    \item Time budget T, path allocation, variant order, and adaptation rules.
+    \item Cold/warm benchmark procedure, repetitions, and acceptable evidence.
+  \end{itemize}
+\end{exampleblock}
+
+\begin{block}{Primary technical references}
+  \small
+  \begin{enumerate}
+    \item Collberg, C. S., and Thomborson, C. ``Watermarking,
+      Tamper-Proofing, and Obfuscation: Tools for Software Protection.''
+      \emph{IEEE TSE}, 28(8), 2002. DOI: 10.1109/TSE.2002.1027797.
+    \item Schrittwieser, S. et al. ``Protecting Software through Obfuscation.''
+      \emph{ACM Computing Surveys}, 49(1), 2016. DOI: 10.1145/2886012.
+    \item OWASP MASVS and MASTG: \url{https://mas.owasp.org/}.
+    \item Android Developers. Android Keystore and R8 documentation:
+      \url{https://developer.android.com/}.
+    \item Android Developers. \texttt{PackageManager.hasSigningCertificate} API.
+  \end{enumerate}
+\end{block}
+
+\end{column}
+\separatorcolumn
+\end{columns}
+\end{frame}
+\end{document}

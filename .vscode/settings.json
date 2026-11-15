@@ -1,0 +1,23 @@
+{
+  "latex-workshop.latex.autoBuild.run": "onFileChange",
+  "latex-workshop.latex.outDir": "%DIR%",
+  "latex-workshop.latex.recipe.default": "latexmk (project build folder)",
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "latexmk (project build folder)",
+      "tools": ["latexmk-project-build"]
+    }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk-project-build",
+      "command": "/bin/sh",
+      "args": [
+        "%WORKSPACE_FOLDER%/scripts/latex-build.sh",
+        "%WORKSPACE_FOLDER%",
+        "%DOC_EXT%"
+      ],
+      "env": {}
+    }
+  ]
+}

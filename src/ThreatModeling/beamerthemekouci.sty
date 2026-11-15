@@ -1,0 +1,111 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthemekouci}[2026/11/07 Kouci poster theme]
+
+\mode<presentation>
+
+% Kouci brand palette
+\definecolor{KouciDeep}{HTML}{17251F}
+\definecolor{KouciInk}{HTML}{1E2923}
+\definecolor{KouciOlive}{HTML}{6E8360}
+\definecolor{KouciSage}{HTML}{8EA07D}
+\definecolor{KouciPale}{HTML}{EAF0E5}
+\definecolor{KouciLine}{HTML}{D5DFD0}
+\definecolor{KouciMuted}{HTML}{65746A}
+\definecolor{KouciCream}{HTML}{F7F8F4}
+\definecolor{KouciWhite}{HTML}{FFFFFF}
+
+% Global canvas and typography
+\setbeamercolor{normal text}{fg=KouciInk,bg=KouciCream}
+\setbeamercolor{structure}{fg=KouciOlive}
+\setbeamercolor{title}{fg=KouciWhite}
+\setbeamercolor{author}{fg=KouciPale}
+\setbeamercolor{institute}{fg=KouciSage}
+\setbeamerfont{title}{series=\bfseries,size=\VeryHuge}
+\setbeamerfont{author}{size=\Large}
+\setbeamerfont{institute}{size=\large}
+
+% Standard content blocks
+\setbeamercolor{block title}{fg=KouciWhite,bg=KouciDeep}
+\setbeamercolor{block body}{fg=KouciInk,bg=KouciWhite}
+\setbeamercolor{block title alerted}{fg=KouciDeep,bg=KouciSage}
+\setbeamercolor{block body alerted}{fg=KouciInk,bg=KouciPale}
+\setbeamercolor{block title example}{fg=KouciWhite,bg=KouciOlive}
+\setbeamercolor{block body example}{fg=KouciInk,bg=KouciPale}
+\setbeamerfont{block title}{series=\bfseries,size=\Large}
+\setbeamerfont{block title alerted}{series=\bfseries,size=\Large}
+\setbeamerfont{block title example}{series=\bfseries,size=\Large}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\raise0.2ex\hbox{\color{KouciOlive}$\blacktriangleright$}}
+\setbeamertemplate{itemize subitem}{\raise0.15ex\hbox{\color{KouciSage}$\bullet$}}
+\setbeamercolor{bibliography item}{fg=KouciOlive}
+\setbeamercolor{bibliography entry author}{fg=KouciInk}
+\setbeamercolor{bibliography entry title}{fg=KouciMuted}
+\setbeamercolor{bibliography entry location}{fg=KouciMuted}
+\setbeamercolor{bibliography entry note}{fg=KouciMuted}
+
+% Theme API retained from the original poster template.
+\newcommand{\kouci@logoleft}{}
+\newcommand{\kouci@logoright}{}
+\newcommand{\kouci@footer}{}
+\newcommand{\logoleft}[1]{\renewcommand{\kouci@logoleft}{#1}}
+\newcommand{\logoright}[1]{\renewcommand{\kouci@logoright}{#1}}
+\newcommand{\footercontent}[1]{\renewcommand{\kouci@footer}{#1}}
+\providecommand{\samelineand}{\qquad\textcolor{KouciSage}{\textbullet}\qquad}
+\newcommand{\heading}[1]{%
+  \par\vspace{0.8ex}{\color{KouciOlive}\bfseries\large #1}\par\vspace{0.35ex}}
+
+% Branded poster header
+\setbeamercolor{headline}{fg=KouciWhite,bg=KouciDeep}
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,sep=2.2cm]{headline}
+    \begin{columns}[c,totalwidth=\paperwidth]
+      \begin{column}{0.15\paperwidth}\centering\kouci@logoleft\end{column}
+      \begin{column}{0.68\paperwidth}\centering
+        {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}
+        \vspace{0.8ex}
+        {\usebeamerfont{author}\usebeamercolor[fg]{author}\insertauthor\par}
+        \vspace{0.35ex}
+        {\usebeamerfont{institute}\usebeamercolor[fg]{institute}\insertinstitute\par}
+      \end{column}
+      \begin{column}{0.15\paperwidth}\centering\kouci@logoright\end{column}
+    \end{columns}
+  \end{beamercolorbox}
+  \begin{beamercolorbox}[wd=\paperwidth,ht=0.55cm]{structure}\end{beamercolorbox}
+}
+
+% Branded footer
+\setbeamercolor{footline}{fg=KouciPale,bg=KouciDeep}
+\setbeamerfont{footline}{size=\normalsize}
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,sep=1.2cm,leftskip=2cm,rightskip=2cm]{footline}
+    \usebeamerfont{footline}\kouci@footer
+  \end{beamercolorbox}
+}
+
+% Flat, high-contrast blocks suited to an academic security poster.
+\setbeamertemplate{block begin}{%
+  \vskip1.2ex
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.8ex,leftskip=1.2ex]{block title}
+    \usebeamerfont*{block title}\insertblocktitle
+  \end{beamercolorbox}
+  \begin{beamercolorbox}[wd=\linewidth,sep=1.2ex,leftskip=1.2ex,rightskip=1.2ex]{block body}}
+\setbeamertemplate{block end}{\end{beamercolorbox}\vskip1.2ex}
+
+\setbeamertemplate{block alerted begin}{%
+  \vskip1.2ex
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.8ex,leftskip=1.2ex]{block title alerted}
+    \usebeamerfont*{block title alerted}\insertblocktitle
+  \end{beamercolorbox}
+  \begin{beamercolorbox}[wd=\linewidth,sep=1.2ex,leftskip=1.2ex,rightskip=1.2ex]{block body alerted}}
+\setbeamertemplate{block alerted end}{\end{beamercolorbox}\vskip1.2ex}
+
+\setbeamertemplate{block example begin}{%
+  \vskip1.2ex
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.8ex,leftskip=1.2ex]{block title example}
+    \usebeamerfont*{block title example}\insertblocktitle
+  \end{beamercolorbox}
+  \begin{beamercolorbox}[wd=\linewidth,sep=1.2ex,leftskip=1.2ex,rightskip=1.2ex]{block body example}}
+\setbeamertemplate{block example end}{\end{beamercolorbox}\vskip1.2ex}
+
+\mode<all>

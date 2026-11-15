@@ -1,0 +1,48 @@
+\thispagestyle{empty}
+\setmainfont{Fira Sans}
+
+\makeatletter
+\AddToHookNext{shipout/background}{%
+\begin{tikzpicture}[remember picture,overlay]
+    \node[inner sep=0pt] at (current page.center) {%
+        \includegraphics[width=\paperwidth,height=\paperheight]{imgs/cover-water.png}%
+    };
+    \fill[KouciGreen900,opacity=0.50]
+        (current page.south west) rectangle (current page.north east);
+
+\end{tikzpicture}%
+}
+
+\AddToHookNext{shipout/foreground}{%
+\begin{tikzpicture}[remember picture,overlay]
+    \node[inner sep=0pt]
+        at ([xshift=-2.5cm,yshift=-1.65cm]current page.north east) {%
+            \includegraphics[height=3cm]{imgs/kouci-logo.png}%
+        };
+    
+
+    \node[anchor=west,text width=0.72\paperwidth,align=left,text=white]
+        at ([xshift=2.05cm,yshift=1.2cm]current page.west) {%
+            {\sffamily\bfseries\fontsize{38}{43}\selectfont
+             Kouci Threat Model}\par
+            \vspace{0.25cm}
+            {\color{KouciGreen400}\rule{10cm}{2.2pt}}\par
+            \vspace{0.45cm}
+            {\large\color{KouciGreen200}
+             Security and privacy analysis for an
+             offline-first water polo analytics platform}
+        };
+
+    \node[anchor=center,text width=0.72\paperwidth,align=center,text=white]
+        at ([yshift=1.2cm]current page.south) {%
+            {\large\color{KouciGreen200}
+            \today}
+        };
+
+    
+\end{tikzpicture}%
+}
+\makeatother
+
+\null
+\clearpage
