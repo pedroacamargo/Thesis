@@ -33,4 +33,31 @@ R8
 R9
 ```
 
+## Different Syntaxes
+
+There are two main syntaxes for x86-64 assembly: AT&T and Intel.
+
+**AT&T Syntax**:
+- Register names are prefixed with `%`
+- Immediate values are prefixed with `$`
+- Memory operands are enclosed in parentheses
+- The order of operands is `source, destination`
+
+**Intel Syntax**:
+- Register names are not prefixed
+- Immediate values are not prefixed
+- Memory operands are enclosed in square brackets
+- The order of operands is `destination, source`
+
+## Instruction Suffixes
+
+| Suffix | Size | Example |
+|---|---|---|
+| `b` | 8 bits | `movb` |
+| `w` | 16 bits | `movw` |
+| `l` | 32 bits | `movl` |
+| `q` | 64 bits | `movq` |
+
+
+
 **Little Endian**: 
