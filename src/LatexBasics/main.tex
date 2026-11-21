@@ -9,6 +9,10 @@
 \usepackage[table]{xcolor}
 \usepackage{array}
 \usepackage{float}
+\usepackage{amssymb}
+
+
+\usetikzlibrary{trees, positioning, shapes.geometric, arrows.meta}
 
 % Center text horizontally and vertically
 \newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
@@ -27,6 +31,146 @@
 \definecolor{KouciGreen400}{HTML}{8FA475}
 \definecolor{KouciGreen300}{HTML}{B2C0A2}
 \definecolor{KouciGreen200}{HTML}{D9E0D1}
+
+\definecolor{KouciTableLight}{HTML}{EDF7F0}
+\definecolor{KouciTableLine}{HTML}{D5E5DA}
+
+% Usage: \trustboundary{ID}{Boundary}{Flow}{Security question}
+\newcommand{\trustboundary}[4]{%
+    \par\medskip
+    \begingroup
+    \setlength{\fboxsep}{0pt}%
+    \noindent\fcolorbox{KouciGreen600}{KouciGreen200!25!white}{%
+        \begin{minipage}{\dimexpr\linewidth-2\fboxrule\relax}
+            \colorbox{KouciGreen600}{%
+                \parbox{\linewidth}{%
+                    \vspace{7pt}%
+                    \hspace*{12pt}\color{white}\bfseries\small
+                    TRUST BOUNDARY \quad #1\par
+                    \vspace{7pt}%
+                }%
+            }%
+            \par\medskip
+            \hspace*{12pt}%
+            \begin{minipage}{\dimexpr\linewidth-24pt\relax}
+                {\bfseries\color{KouciGreen600}Boundary}\par
+                #2
+                \par\medskip
+                \begin{minipage}[t]{0.25\linewidth}
+                    {\bfseries\color{KouciGreen600}Data Flow}\par
+                    #3
+                \end{minipage}%
+                \hfill
+                \begin{minipage}[t]{0.70\linewidth}
+                    {\bfseries\color{KouciGreen600}Security Question}\par
+                    \textit{#4}
+                \end{minipage}
+                \par\vspace{12pt}
+            \end{minipage}
+        \end{minipage}%
+    }%
+    \endgroup
+    \par\medskip
+}
+
+\newcounter{threat}
+
+\newcommand{\threatentry}[7]{%
+    \refstepcounter{threat}%
+    \label{threat:#1}%
+    \par\medskip
+    \begingroup
+    \setlength{\fboxsep}{0pt}%
+    \noindent\fcolorbox{KouciGreen600}{KouciGreen200!25!white}{%
+        \begin{minipage}{\dimexpr\linewidth-2\fboxrule\relax}
+            \colorbox{KouciGreen600}{%
+                \parbox{\linewidth}{%
+                    \vspace{7pt}%
+                    \hspace*{12pt}\color{white}\bfseries\small
+                    #1 \quad #2\par
+                    \vspace{7pt}%
+                }%
+            }%
+            \par\medskip
+            \hspace*{12pt}%
+            \begin{minipage}{\dimexpr\linewidth-24pt\relax}
+                \begin{minipage}[t]{0.70\linewidth}
+                    \textbf{\color{KouciGreen600}Element / Boundary}\par
+                    #3
+                \end{minipage}%
+                \hfill
+                \begin{minipage}[t]{0.25\linewidth}
+                    \textbf{\color{KouciGreen600}Priority}\par
+                    #6
+                \end{minipage}
+                \par\medskip
+                \textbf{\color{KouciGreen600}Threat and Preconditions}\par
+                #4
+                \par\medskip
+                \textbf{\color{KouciGreen600}Impact / Goal}\par
+                #5
+                \par\medskip
+                \textbf{\color{KouciGreen600}Treatment and Test}\par
+                #7
+                \par\vspace{12pt}
+            \end{minipage}
+        \end{minipage}%
+    }%
+    \endgroup
+    \par\medskip
+}
+
+% Attack tree styles
+\tikzset{
+    attackroot/.style={
+        rectangle,
+        rounded corners=3pt,
+        draw=KouciGreen600,
+        fill=KouciGreen600,
+        text=white,
+        thick,
+        align=center,
+        font=\bfseries\small,
+        text width=5cm,
+        minimum height=1.2cm,
+        inner sep=8pt
+    },
+    attacknode/.style={
+        rectangle,
+        rounded corners=3pt,
+        draw=KouciGreen600!65,
+        fill=KouciGreen200!30,
+        align=center,
+        font=\small,
+        text width=4cm,
+        minimum height=1cm,
+        inner sep=7pt
+    },
+    attacksubnode/.style={
+        rectangle,
+        rounded corners=3pt,
+        draw=KouciGreen600!40,
+        fill=white,
+        align=center,
+        font=\small,
+        text width=4cm,
+        minimum height=0.9cm,
+        inner sep=6pt
+    },
+    attackgate/.style={
+        circle,
+        draw=KouciGreen600,
+        fill=white,
+        thick,
+        font=\bfseries\small,
+        minimum size=9mm
+    },
+    attackedge/.style={
+        draw=KouciGreen600!70,
+        thick,
+        -{Stealth[length=2mm]}
+    }
+}
 
 \setmainfont{Fira Sans}
 
@@ -59,7 +203,7 @@ This document defines the threat model for a controlled Android testbed that rep
 
 This model uses \textbf{STRIDE per Element} analysis, complemented by \textbf{STRIDE per Interaction} analysis at the key trust boundaries. It identifies threats in six categories and relates them to assets, data flows, adversary capabilities, defensive controls and validation evidence.
 
-The study investigates observed attack effort against defined objectives and defender costs of \textbf{three} separate protections: R8, local APK signing-certificate verification, and Android Keystore-backed data encryption.
+The study investigates observed attack effort against defined objectives and defender costs of \textbf{three} separate protections: R8 \textbf{(V1-R8)}, local APK signing-certificate verification \textbf{(V2-SIG)}, and Android Keystore-backed data encryption \textbf{(V3-KS)}.
 
 The attacker has a copy of the application and controls its execution device. The exact privileges and instrumentation capabilities are recorded per attempt.
 
@@ -118,7 +262,7 @@ To know all the objectives are met, we need to perform a series of tests and eva
 
 What we firstly must focus is having a controlled testbed to evaluate the effectiveness of the three protections (R8, local signing-certificate verification and Android Keystore-backed encryption) against two attack objectives. It must be an unprotected baseline APK with the syntetic dataset stored in plaintext. 
 
-First we should target to execute a specified paid feature \textbf{without a valid license} (G1) and then \textbf{recover the entire synthetic scouting dataset outside the normal user interface}. The dissertation will focus on these two objectives, which are the most critical for the security of the application.
+First we should target to execute a specified paid feature \textbf{without a valid license} (G1) and then \textbf{recover the entire synthetic scouting dataset outside the normal user interface} (G2). The dissertation will focus on these two objectives, which are the most critical for the security of the application.
 
 While developing and testing the protections, an observation of the attack effort, defender costs, integration complexity, APK size and performance impact will be made. This will provide a comprehensive understanding of the effectiveness of the protections and their impact on the overall user experience.
 
@@ -308,6 +452,523 @@ Below is a table that identifies the supporting assets of the Kouci application.
 \textbf{Primary adversary (Android device owner)}: possesses the APK, can install and execute the application, and can inspect distributed code/resources. Depending on the scenario, they may attempt to modify, repackage, re-sign or instrument the process. Economic motives may include \textbf{using premium features without payment or obtaining data unavailable through the intended interface}. Actual device control is recorded for each attempt.
 
 
+\subsection{Capability Profiles}
+
+\textbf{Observer (CP0)}: can inspect the APK, may attempt to reverse engineer the code and understand its logic, but does not modify or tamper with the application. This profile represents a passive adversary who is interested in understanding the application's inner workings without actively trying to exploit it.
+
+\medskip
+
+\noindent\textbf{Modifier (CP1)}: P0 + can modify the APK, repackage it, and attempt to bypass licensing checks or access restricted features. This profile represents an active adversary who is willing to take steps to alter the application for personal gain.
+
+\medskip
+
+\noindent\textbf{Instrumenter (CP2)}: P0 + can instrument the application, hook into its methods, and manipulate its execution at runtime. This profile represents a highly skilled adversary who can dynamically analyze and modify the application's behavior during execution.
+
+\medskip
+
+\noindent\textbf{Privileged Access (CP3)}: P0 + has root access to the device, can bypass operating system restrictions, and can access other applications' private files. This profile represents an adversary with elevated privileges who can perform actions that are typically restricted to the operating system or other applications.
+
+\section{Data Flow Diagram}
+
+Below is a Level 0 Data Flow Diagram (DFD) that illustrates the flow of data within the Kouci application. The DFD provides a high-level overview of the system's components, data stores, and interactions with external entities. It helps to identify potential security risks and areas where sensitive data may be exposed.
+
+\subsection{Level 0 DFD}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{imgs/STRIDE RE.png}
+    \caption{Kouci .apk Data Flow Diagram}
+    \label{fig:data-flow-diagram}
+\end{figure}
+
+\textbf{P1 - P5} are logical processes, \textbf{D1} is the local database of the mobile application, \textbf{E1 - E3} are external entities that are't controlled by the application. \textbf{F1 - F10} are data flows between the processes, data stores and external entities. 
+
+\subsection{Trust Boundaries}
+
+\trustboundary
+    {TB1}
+    {Distributed APK ↔ attacker-controlled device}
+    {F1, F2}
+    {Can local code and decision integrity be trusted?}
+
+\trustboundary{TB2}{License validator ↔ paid feature}{F3, F4}{Can the function's authorization decision withstand local manipulation?}
+
+\trustboundary{TB3}{Local storage ↔ application process}{F5,F9,F10}{Are data protected at rest and after decryption?}
+
+\trustboundary{TB4}{Data Processing ↔ Android Keystore}{F7}{Does protecting a key also prevent plaintext exposure?}
+
+\trustboundary{TB5}{Process ↔ PackageManager/Android signing}{F8}{Can the local certificate check be circumvented?}
+
+\trustboundary{TB6* - Future Work}{Device ↔ synchronization API/backend}{Outside Scope}{Could a modified client perform unauthorized operations?}
+
+\pagebreak
+
+\section{STRIDE Analysis}
+
+\subsection{STRIDE-per-Element Matrix}
+\label{subsec:stride-matrix}
+
+\begin{table}[htbp]
+\centering
+\caption{STRIDE-per-Element Threat Matrix}
+\label{tab:stride-element-matrix}
+
+\small
+\renewcommand{\arraystretch}{1.6}
+\setlength{\extrarowheight}{3pt}
+\setlength{\tabcolsep}{4pt}
+
+\rowcolors{2}{KouciTableLight}{white}
+\arrayrulecolor{KouciTableLine}
+
+\begin{tabularx}{\textwidth}{
+    >{\raggedright\arraybackslash}p{4cm}
+    Y Y Y Y Y Y
+}
+
+\rowcolor{KouciGreen600}
+\multicolumn{1}{C{4cm}}{\color{white}\textbf{Element}} &
+\multicolumn{1}{c}{\color{white}\textbf{S}} &
+\multicolumn{1}{c}{\color{white}\textbf{T}} &
+\multicolumn{1}{c}{\color{white}\textbf{R}} &
+\multicolumn{1}{c}{\color{white}\textbf{I}} &
+\multicolumn{1}{c}{\color{white}\textbf{D}} &
+\multicolumn{1}{c}{\color{white}\textbf{E}} \\
+\hline
+
+P1 APK/local code &
+$\circ$ & $\bullet$ & $\circ$ & $\bullet$ & $\bullet$ & $\circ$ \\
+\hline
+
+P2 license validator &
+$\bullet$ & $\bullet$ & $\circ$ & $\circ$ & $\bullet$ & $\bullet$ \\
+\hline
+
+P3 paid feature &
+$\circ$ & $\bullet$ & $\circ$ & $\circ$ & $\bullet$ & $\bullet$ \\
+\hline
+
+D1 local dataset &
+--- & $\bullet$ & $\circ$ & $\bullet$ & $\bullet$ & --- \\
+\hline
+
+P4 processing &
+$\circ$ & $\bullet$ & $\circ$ & $\bullet$ & $\bullet$ & $\circ$ \\
+\hline
+
+P5 aggregates UI &
+$\circ$ & $\bullet$ & --- & $\circ$ & $\bullet$ & $\circ$ \\
+\hline
+
+E2 Keystore/interface &
+$\circ$ & $\circ$ & --- & $\circ$ & $\bullet$ & $\circ$ \\
+\hline
+
+E3 PackageManager/signing &
+$\bullet$ & $\circ$ & --- & $\circ$ & $\circ$ & $\circ$ \\
+\hline
+
+F4 authorization flow &
+$\bullet$ & $\bullet$ & $\circ$ & --- & $\circ$ & $\bullet$ \\
+\hline
+
+F5/F7/F10 data flows &
+$\circ$ & $\bullet$ & --- & $\bullet$ & $\circ$ & $\circ$ \\
+\hline
+
+\end{tabularx}
+\end{table}
+
+\noindent\textbullet\ Relevant threat;
+
+\noindent$\circ$ Examine under specific conditions;
+
+\noindent--- No principal scenario identified within the experimental scope.
+
+\medbreak
+
+\noindent
+\textit{Note:} This matrix is a screening aid, not a claim that
+every marked combination is exploitable. The subsequent threat
+catalogue identifies concrete scenarios and their relevance.
+
+\pagebreak
+
+\subsection{STRIDE Threat Catalogue}
+
+Below is a catalogue of identified threats based on the STRIDE analysis. Each threat is assigned a unique identifier, categorized by type, and includes details about the affected elements, potential impacts, and recommended treatments or tests.
+
+\textbf{Critical} threats are directly capable of satisfying G1/G2 under defined conditions. \textbf{High} means it's an important enabling path or serious methodological threat.\textbf{Medium} means it's relevant effect outside the core outcome or dependent on specific conditions. 
+
+\subsubsection{Spoofing Threats}
+
+\threatentry{K-S01}{Spoofing}{P2, F4, TB2}{Forged license state or impersonated license holder in local decision; requires control of state or execution.}{Unauthorized activation, \textbf{G1}}{High}{Do not treat local fields as strong proof;
+     test invalid-license rejection and bypass.}
+
+\threatentry{K-S02}{Spoofing}{P1, E3, TB5}{Modified APK masquerades as an authentic installation; requires repackaging and installation.}{Enables \textbf{G1}}{High}{\textbf{V2-SIG:} Compare installed and expected certificates; attempt to bypass the local check}
+
+\pagebreak
+
+\subsubsection{Tampering Threats}
+
+\threatentry{K-T01}{Tampering}{P2, P3, TB1/TB2}{Change instructions, return values or authorization branches; P1 or P2}{\textbf{G1}}{\textbf{Critical}}{Measure bypass on \textbf{V0, V1-R8 and V2-SIG}; require functional evidence.}
+
+\threatentry{K-T02}{Tampering}{D1, P4, TB3}{Alter local data/statistics; Requires file or process access}{Incorrect outputs, A6}{Medium}{Data integrity, validation and corruption tests; outside G2 scope.}
+
+\threatentry{K-T03}{Tampering}{P1, TB1}{Repackage, re-sign and redistribute a modified APK; distribution capability not assumed}{Code/A5 integrity; enables G1}{High}{Check signing identity; assess whether local check can be removed.}
+
+\pagebreak
+
+\subsubsection{Repudiation Threats}
+
+\threatentry{K-R01}{Repudiation}{P2/P3, A60}{Misuse of paid feature without trustworthy evidence trail; offline operation and mutable local logs}{Impedes attribution/reconstruction}{Medium}{Preserve independent research evidence and hashes; do not claim user non-repudiation}
+
+\threatentry{K-R02}{Repudiation}{D1, A60}{Dataset or experimental artifacts changed without traceability}{Unverifiable Conclusions}{High}{Dataset/APK hashes, timestamped log and version control}
+
+\pagebreak
+
+\subsubsection{Information Disclosure Threats}
+
+\threatentry{K-I01}{Information Disclosure}{D1, TB3}{Copy plaintext files with private-file access; P3 or another demonstrated capability}{Complete Recovery \textbf{G2}}{\textbf{Critical}}{Compare \textbf{V0-D} and \textbf{V3-KS}; verify complete dataset without running app during at-rest route.}
+
+\threatentry{K-I02}{Information Disclosure}{P4, F10, TB3/TB4}{Observe plaintext after decryption in an instrumented process}{Complete recovery \textbf{G2}, including with Keystore}{\textbf{Critical}}{DATA-RUNTIME test; separate from key/file extraction}
+
+\threatentry{K-I03}{Information Disclosure}{P1/P2, TB1}{Static analysis reveals structure/algorithm of local licensing checks}{Reduces effort for \textbf{G1} (not success by itself)}{High}{Compare effort to locate relevant logic with and without R8}
+
+\threatentry{K-I04}{Information Disclosure}{A50, TB4}{Attempt to extract key material or induce cryptographic use outside intended flow; requires specific capabilities}{May support \textbf{G2}; not equivalent to \textbf{G2}}{Medium}{Inspect actual key security level and restrictions; do not assume key extraction}
+
+\pagebreak
+
+\subsubsection{Denial of Service Threats}
+
+\threatentry{K-D01}{Denial of Service}{P1/P3/P4}{Modified APK or malformed data causes crashes or hangs}{Availability loss/A20}{Medium}{Robustness tests; \textbf{not} a principal measured objective}
+
+\threatentry{K-D02}{Denial of Service}{D1/P4, TB3}{Dataset deletion/corruption or unavailable key blocks reading}{Operational failure}{Medium}{Integrity, error recovery and secure backup}
+
+\pagebreak
+
+\subsubsection{Elevation of Privilege Threats}
+
+\threatentry{K-E01}{Elevation of Privilege}{P2→P3, TB2}{Unlicensed client obtains premium privileges}{Authorization failure \textbf{G1}}{\textbf{Critical}}{Require real feature execution, not merely a visual UI change}
+
+\threatentry{K-E02}{Elevation of Privilege}{P1/P4, TB1/TB3}{Instrumentation or privileged access circumvents expected isolation; privilege must be demonstrated}{Supports \textbf{G1/G2}}{High/Conditional}{Record root, debug status, permissions and gained capabilities per experiment}
+
+\pagebreak
+
+\subsection{STRIDE-per-Interaction at priority boundaries}
+
+\subsubsection{License Validator to Paid Feature (F3 → F4)}
+
+\textbf{Connection to Dissertation Objective:} Evaluates \textbf{G1}, specifically the ability to bypass licensing checks.
+
+\medbreak
+
+The objective is not merely to bypass the validator. It is to demonstrate unauthorized execution of the premium feature.
+
+\medbreak
+
+\noindent\textbf{STRIDE Questions:} Can the license state be forged? Can the authorization decision be modified? Can premium rights be obtained? Is there a reproducible execution trail?
+
+\noindent\textbf{Required Evidence:} Evidence of an invalid license + Evidence that the premium functionality actually operated + Evidence identifying the tested build
+
+\subsubsection{Local Dataset to Application Process / Attacker (F5/F9)}
+
+\textbf{Connection to Dissertation Objective:} Evaluates \textbf{G2}, specifically at-rest extraction.
+
+\medbreak
+
+The attacker may try to access the data directly from storage rather than through the application's legitimate interface. this is a critical distinction because the baseline testbed stores the synthetic dataset in plaintext, whereas the Keystore variant encrypts it.
+
+\medbreak
+
+\noindent\textbf{STRIDE Questions:} Can the dataset be read at rest? Can stored data be modified? Can deletion prevent processing?
+
+\medbreak
+
+\noindent\textbf{Required Evidence}
+
+\medbreak
+
+\textbf{Scenario A - At-rest extraction}
+
+The attacker obtains files without executing the application as part of the extraction path.
+
+Extracted Files + Recovered plaintext dataset + Reference dataset or its authenticated comparison information + Comparison result + Device and file-access conditions
+
+\medbreak
+
+\textbf{Scenario B - Runtime extraction}
+
+If the attacker launches the application and observes data during processing, that is a different attack route.
+
+It should not be reported as successful at-rest extraction.
+
+\subsubsection{Android Keystore and Data Processing (F7/F10)}
+
+\textbf{Connection to Dissertation Objective:} Evaluates \textbf{G2}, specifically runtime interception.
+
+\medbreak
+
+If the application needs to analyze complete scouting records, those records will generally become available in plaintext during processing.
+
+\medbreak
+
+\noindent\textbf{STRIDE Questions:} Is plaintext visible after decryption? Is privileged access required? (If the attacker starts the experiment with root access, root is a precondition) Can the key become unavailable?
+
+\medbreak
+
+\noindent\textbf{Required Evidence:} Recovered data + Observation point (e.g., memory dump, logcat, instrumentation) + Key state + Process state
+
+\subsubsection{Application to Signing Identity (F8)}
+
+\textbf{Connection to Dissertation Objective:}  Evaluation of \textbf{V2-SIG}.
+
+\medbreak
+
+This interaction is relevant to the variant that verifies the APK's signing certificate. The purpose of the protection is to detect certain modifications involving repackaging and re-signing. \textbf{Important}: Bypassing the application's certificate check is not the same as forging the original certificate or possessing the legitimate private signing key.
+
+\medbreak
+
+\noindent\textbf{STRIDE Questions:} Can signing identity be impersonated? Can the verification result be modified? Can verification be bypassed to access a restricted feature?
+
+\medbreak
+
+\noindent\textbf{Required Evidence:} Expected signing-certificate digest + Tested APK hash + Actual signing certificate + Local verification outcome + License state + Premium-feature execution
+
+\pagebreak
+
+\section{Attack Tree}
+
+\subsection{G1 - Activation without a license}
+
+\label{subsec:attack-tree-g1}
+
+\begin{figure}[htbp]
+\centering
+
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=1cm and 0.8cm
+]
+
+% Root goal
+\node[attackroot] (root) {
+    G1 - Unauthorized Premium Activation\\
+    \normalfont\footnotesize
+    Paid feature operates without a valid license
+};
+
+% OR gate
+\node[attackgate, below=0.9cm of root] (or) {OR};
+
+% Attack paths
+\node[attacknode, below left=1.3cm and 3.5cm of or] (state) {
+    \textbf{Manipulate License State}\\[4pt]
+    \footnotesize K-S01
+};
+
+\node[attacknode, below=1.3cm of or] (code) {
+    \textbf{Modify Authorization Logic}\\[4pt]
+    \footnotesize K-T01
+};
+
+\node[attacknode, below right=1.3cm and 3.5cm of or] (runtime) {
+    \textbf{Manipulate Runtime Validation}\\[4pt]
+    \footnotesize K-T01 / K-E01
+};
+
+% Conditional substep
+\node[attacksubnode, below=1cm of code] (repackage) {
+    \textbf{If Required}\\[3pt]
+    Repackage and re-sign APK\\
+    \footnotesize K-T03 / K-S02
+};
+
+% Connections
+\draw[attackedge] (root) -- (or);
+
+\draw[attackedge] (or) -- (state);
+\draw[attackedge] (or) -- (code);
+\draw[attackedge] (or) -- (runtime);
+
+\draw[attackedge, dashed] (code) -- (repackage);
+
+\end{tikzpicture}
+}
+
+\caption{Attack tree for G1 — Unauthorized activation of premium functionality.}
+\label{fig:attack-tree-g1}
+
+\end{figure}
+
+\noindent
+\textbf{Success criterion:}
+The predefined paid functionality successfully performs
+a real operation while the application does not possess
+a valid license.
+
+\medskip
+
+\noindent
+\textbf{Insufficient evidence:}
+Locating the license verification mechanism,
+modifying only the user interface,
+producing an APK that fails to launch,
+or obtaining a legitimate license does not
+constitute a successful attack.
+
+\newpage
+
+\subsection{G2 - Recovery of the Complete Dataset}
+\label{subsec:attack-tree-g2}
+
+\begin{figure}[htbp]
+\centering
+
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=1cm and 1cm
+]
+
+% ============================================
+% ROOT GOAL
+% ============================================
+
+\node[attackroot, text width=9cm] (root) {
+    G2 — Complete Dataset Recovery\\[4pt]
+    \normalfont\footnotesize
+    Entire synthetic dataset recovered in plaintext
+    outside the legitimate access path
+};
+
+% ============================================
+% OR GATE
+% ============================================
+
+\node[attackgate, below=0.8cm of root] (or) {
+    OR
+};
+
+% ============================================
+% ATTACK PATHS
+% ============================================
+
+% DATA-REST
+\node[
+    attacknode,
+    text width=5cm,
+    below left=1.2cm and 1.6cm of or
+] (rest) {
+    \textbf{DATA-REST}\\[5pt]
+    Obtain stored files and reconstruct
+    the complete plaintext dataset
+    without executing the application\\[5pt]
+    \footnotesize\textbf{K-I01}
+};
+
+% DATA-RUNTIME
+\node[
+    attacknode,
+    text width=5cm,
+    below right=1.2cm and 1.6cm of or
+] (runtime) {
+    \textbf{DATA-RUNTIME}\\[5pt]
+    Observe plaintext during application
+    processing and reconstruct the
+    complete dataset\\[5pt]
+    \footnotesize\textbf{K-I02}
+};
+
+% ============================================
+% CONDITIONS / LIMITATIONS
+% ============================================
+
+% DATA-REST limitation
+\node[
+    attacksubnode,
+    text width=5cm,
+    below=0.8cm of rest
+] (restcondition) {
+    \textbf{Keystore Variant}\\[4pt]
+    Copying ciphertext alone
+    does not constitute
+    successful recovery
+};
+
+% DATA-RUNTIME condition
+\node[
+    attacksubnode,
+    text width=5cm,
+    below=0.8cm of runtime
+] (runtimecondition) {
+    \textbf{Runtime Observation}\\[4pt]
+    Includes observing plaintext
+    after decryption,
+    where applicable
+};
+
+% ============================================
+% CONNECTIONS
+% ============================================
+
+\draw[attackedge] (root) -- (or);
+
+\draw[attackedge] (or) -- (rest);
+\draw[attackedge] (or) -- (runtime);
+
+% Dashed lines represent explanatory conditions,
+% not additional mandatory attack steps.
+
+\draw[
+    draw=KouciGreen600!60,
+    dashed,
+    thick
+] (rest) -- (restcondition);
+
+\draw[
+    draw=KouciGreen600!60,
+    dashed,
+    thick
+] (runtime) -- (runtimecondition);
+
+\end{tikzpicture}
+}
+
+\caption{Attack tree for G2 — Unauthorized recovery
+of the complete synthetic scouting dataset.}
+\label{fig:attack-tree-g2}
+
+\end{figure}
+
+\noindent
+\textbf{Success Criterion:}
+The attacker successfully reconstructs the complete
+synthetic scouting dataset in plaintext outside the
+application's authorized access path. The recovered
+dataset must match the canonical reference through
+exact record equality or a predefined canonical
+representation and hash comparison.
+
+\medskip
+
+\noindent
+\textbf{Insufficient Evidence:}
+Access through an authorized export mechanism,
+observation of aggregated results, partial record
+recovery, extraction of ciphertext alone, or
+observation of a Keystore key alias does not
+constitute successful dataset recovery.
+
+\medskip
+
+\noindent
+\textbf{Experimental Distinction:}
+At-rest extraction and runtime interception are
+evaluated independently because they involve
+different attacker capabilities, preconditions,
+and security implications. Successful runtime
+recovery does not demonstrate that the stored
+ciphertext or cryptographic key was compromised.
 
 \end{document}
 
