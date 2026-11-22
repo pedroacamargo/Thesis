@@ -7,6 +7,6 @@
 - [x] Criar o repositório da dissertação.
 - [x] Document how kouci is structured.
 - [x] Identificar os fluxos de licença e de acesso aos dados.
-- [ ] Write threat modeling
+- [x] Write threat modeling
 
 # Week 2
