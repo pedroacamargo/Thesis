@@ -10,6 +10,7 @@
 \usepackage{array}
 \usepackage{float}
 \usepackage{amssymb}
+\usepackage{enumitem}
 
 
 \usetikzlibrary{trees, positioning, shapes.geometric, arrows.meta}
@@ -17,6 +18,9 @@
 % Center text horizontally and vertically
 \newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+% IMPORTANT: Make X columns vertically centered
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
 
 % Custom colors
 \definecolor{headerblue}{HTML}{17365D}
@@ -112,6 +116,40 @@
                 \par\medskip
                 \textbf{\color{KouciGreen600}Treatment and Test}\par
                 #7
+                \par\vspace{12pt}
+            \end{minipage}
+        \end{minipage}%
+    }%
+    \endgroup
+    \par\medskip
+}
+
+% Usage: \protectionentry{Protection}{Threats}{Validation}{Limitation}
+\newcommand{\protectionentry}[4]{%
+    \par\medskip
+    \begingroup
+    \setlength{\fboxsep}{0pt}%
+    \noindent\fcolorbox{KouciGreen600}{KouciGreen200!25!white}{%
+        \begin{minipage}{\dimexpr\linewidth-2\fboxrule\relax}
+            \colorbox{KouciGreen600}{%
+                \parbox{\linewidth}{%
+                    \vspace{7pt}%
+                    \hspace*{12pt}\color{white}\bfseries\small
+                    PROTECTION \quad #1\par
+                    \vspace{7pt}%
+                }%
+            }%
+            \par\medskip
+            \hspace*{12pt}%
+            \begin{minipage}{\dimexpr\linewidth-24pt\relax}
+                \textbf{\color{KouciGreen600}Threats it seeks to make harder}\par
+                #2
+                \par\medskip
+                \textbf{\color{KouciGreen600}Validation}\par
+                #3
+                \par\medskip
+                \textbf{\color{KouciGreen600}Important Limitation}\par
+                #4
                 \par\vspace{12pt}
             \end{minipage}
         \end{minipage}%
@@ -515,7 +553,7 @@ Below is a Level 0 Data Flow Diagram (DFD) that illustrates the flow of data wit
 
 \small
 \renewcommand{\arraystretch}{1.6}
-\setlength{\extrarowheight}{3pt}
+\setlength{\extrarowheight}{0pt}
 \setlength{\tabcolsep}{4pt}
 
 \rowcolors{2}{KouciTableLight}{white}
@@ -796,7 +834,7 @@ This interaction is relevant to the variant that verifies the APK's signing cert
 \end{tikzpicture}
 }
 
-\caption{Attack tree for G1 — Unauthorized activation of premium functionality.}
+\caption{Attack tree for G1 - Unauthorized activation of premium functionality.}
 \label{fig:attack-tree-g1}
 
 \end{figure}
@@ -835,7 +873,7 @@ constitute a successful attack.
 % ============================================
 
 \node[attackroot, text width=9cm] (root) {
-    G2 — Complete Dataset Recovery\\[4pt]
+    G2 - Complete Dataset Recovery\\[4pt]
     \normalfont\footnotesize
     Entire synthetic dataset recovered in plaintext
     outside the legitimate access path
@@ -934,7 +972,7 @@ constitute a successful attack.
 \end{tikzpicture}
 }
 
-\caption{Attack tree for G2 — Unauthorized recovery
+\caption{Attack tree for G2 - Unauthorized recovery
 of the complete synthetic scouting dataset.}
 \label{fig:attack-tree-g2}
 
@@ -969,6 +1007,226 @@ different attacker capabilities, preconditions,
 and security implications. Successful runtime
 recovery does not demonstrate that the stored
 ciphertext or cryptographic key was compromised.
+
+\pagebreak
+
+\section{Threat, Protection and Limitation Mapping}
+
+Each protection applied to the application is meant to mitigate specific threats identified previously. Each of them have limitations and we can validate their effectiveness through the experimental design. The following table summarizes the relationship between threats, protections, and their limitations.
+
+\protectionentry
+    {V1-R8: R8 Obfuscation}
+    {K-I03, K-T01}
+    {Measure effort to locate/modify logic versus V0}
+    {Obfuscation does not establish an authorization trust boundary or inherently prevent instrumentation.}
+
+    \protectionentry{V2-SIG: Signing Certificate Verification}{K-S02, K-T03 and some K-T01 paths}{Test modified/re-signed APK and possible circumvention of the local check}{The check itself executes on the attacker's device; it is distinct from Android's standard signing verification}
+
+    \protectionentry{V3-KS: Android Keystore-backed data encryption}{K-I01, K-I04}{Extract at-rest files and observe key use; report actual key security level}{A non-exportable key does \textbf{not} automatically protect plaintext processed by the app }
+
+    \protectionentry{Protocol and Evidence Hashes}{K-R01, K-R02}{Verifiable logs, hashes, conditions and times}{Improve rigor but do not make local logs intrinsically trustworthy}
+
+\medbreak
+
+One developer-attacker, one device and the specified variants cannot establish a generally causal effect for each control. Protections must not be described as “unbreakable”, nor may an unsuccessful attempt be treated as proof of impossibility.
+
+\pagebreak
+\section{Empirical Plan}
+
+\begin{table}[htbp]
+\centering
+
+\label{tab:experimental-matrix}
+
+\small
+
+% Table spacing
+\renewcommand{\arraystretch}{1.8}
+\setlength{\extrarowheight}{4pt}
+\setlength{\tabcolsep}{6pt}
+
+% Alternating colors
+\rowcolors{2}{KouciTableLight}{white}
+\arrayrulecolor{KouciTableLine}
+
+% Table intentionally wider than the text block
+\makebox[\textwidth][c]{%
+\begin{tabularx}{1.5\textwidth}{
+    C{1cm}
+    C{2.1cm}
+    C{4.3cm}
+    Y
+}
+
+% HEADER
+\rowcolor{KouciGreen600}
+
+{\color{white}\bfseries ID} &
+{\color{white}\bfseries Variant} &
+{\color{white}\bfseries Primary Threats} &
+{\color{white}\bfseries Binary Success Condition} \\
+\hline
+
+% G1 — LICENSE BYPASS
+
+\textbf{E1} &
+V0-L &
+K-S01, K-T01, K-E01 &
+Paid function operates without a valid license \\
+\hline
+
+\textbf{E2} &
+V1-R8 &
+K-I03, K-T01, K-E01 &
+Same as E1 \\
+\hline
+
+\textbf{E3} &
+V2-SIG &
+K-S02, K-T03, K-E01 &
+Same as E1 \\
+\hline
+
+% G2 — DATASET RECOVERY
+
+\textbf{E4a} &
+V0-D &
+K-I01 &
+Entire plaintext dataset recovered without
+running the application in this route \\
+\hline
+
+\textbf{E4b} &
+V0-D &
+K-I02 &
+Entire dataset recovered through runtime
+observation \\
+\hline
+
+\textbf{E5a} &
+V3-KS &
+K-I01, K-I04 &
+Same as E4a \\
+\hline
+
+\textbf{E5b} &
+V3-KS &
+K-I02 &
+Same as E4b \\
+\hline
+
+\end{tabularx}%
+}
+
+\caption{Experimental matrix and predefined success criteria}
+
+\end{table}
+
+The experimental matrix establishes a direct relationship between the threats identified through STRIDE, the application variants, and the predefined attack objectives.
+
+Experiments E1-E3 address \textbf{G1} (License Bypass), evaluating whether unauthorized activation of a paid feature can be achieved in the baseline application and in variants protected through R8 obfuscation or local APK signing-certificate verification.
+
+Experiments E4a-E5b address \textbf{G2} (Dataset Recovery), distinguishing between extraction of stored data without executing the application and interception of plaintext during runtime processing. Both attack routes are evaluated against the baseline and the Android Keystore-backed encryption variant.
+
+For comparability, experiments targeting the same objective and attack route share an identical binary success condition. An experiment is classified as successful only when the predefined objective is demonstrably achieved. Otherwise, the result is reported as unsuccessful within the established active-time budget, rather than as evidence that the protection cannot be bypassed.
+
+The analysis additionally records attacker capabilities, experimental conditions, active effort, tools, encountered obstacles, and implementation-specific limitations. Consequently, the resulting comparisons characterize the observed attack effort under the defined conditions rather than establishing general resistance against all potential adversaries.
+
+\subsection{Mandatory Attempt Record}
+
+Each experiment must be documented with a detailed record of the attempt:
+\begin{itemize}[
+    label=\textcolor{KouciGreen600}{\textbullet},
+    itemsep=6pt,
+    leftmargin=*
+]
+    \setlength{\itemsep}{6pt}
+
+    \item Attempt ID, threat, objective, variant, commit, and APK SHA-256.
+
+    \item Device model, Android version, root/bootloader/debug state,
+    and instrumentation availability.
+
+    \item License state and reference dataset version/hash.
+
+    \item Actual security level of the generated/used Android Keystore
+    key and authentication requirements.
+
+    \item Connectivity, permitted tool classes, prior knowledge,
+    and newly acquired knowledge.
+
+    \item Chronological activity log: action, steps,
+    \textbf{active} time, obstacle, adaptation, and evidence.
+
+    \item Outcome: \textbf{success} or
+    \textbf{unsuccessful within $T$ active hours}
+    (censored observation).
+
+    \item Defender side: learning versus integration time;
+    APK size; cold/warm startup and data access times,
+    with repeated measurements, median, and dispersion.
+\end{itemize}
+
+\subsection{Protocol Freeze}
+
+Conduct a \textbf{separate} pilot and exclude its measurements. Before measuring \textbf{even the baseline}, freeze variant/attempt order, allowed tools, adaptation rules, active-time budget T, start/stop conditions, success proof, dataset comparison method, benchmarks and deviation policy. The proposal's \textbf{20-hour} example is illustrative, not an agreed budget.
+
+\section{Open Decisions}
+
+\textbf{Decisions to validate with the supervisor:} (1) exact paid feature; (2) synthetic dataset schema/size and canonicalization; (3) device, OS and root/debug state; (4) permitted tools/capabilities; (5) key requirements and configuration; (6) T, order and adaptation rules; (7) step/code metrics and benchmarking procedure; (8) differences between testbed flows and real Kouci implementation.
+
+
+\section{Future Work}
+
+The experimental evaluation presented in this dissertation focuses on the attack effort and implementation costs associated with three client-side protection mechanisms in an offline-first Android application. Although these mechanisms provide a foundation for investigating software protection in attacker-controlled environments, several opportunities remain for extending the research.
+
+Future work could investigate more advanced protection mechanisms, combinations of security controls, additional attacker capabilities, and alternative evaluation methodologies. The following directions are particularly relevant.
+
+\subsection{Resistance to AI-Assisted Reverse Engineering}
+
+Recent advances in code analysis and large language models motivate investigating whether \textbf{AI-assisted tools can reduce the effort required to understand obfuscated application logic}, identify authorization checks, and interpret decompiled code.
+
+\medbreak
+
+A future study could compare three attacker configurations:
+
+\begin{itemize}[
+    label=\textcolor{KouciGreen600}{\textbullet},
+    itemsep=0pt,
+    leftmargin=*
+]
+    \item Traditional manual reverse engineering.
+
+    \item Reverse engineering assisted by AI-based code analysis.
+
+    \item Hybrid workflows combining automated analysis, AI assistance, and manual validation.
+    
+\end{itemize}
+
+The evaluation could measure time to identify security-sensitive functionality, successful attack outcomes, analyst interaction requirements, and the accuracy of AI-generated interpretations.
+
+This extension would help determine whether traditional obfuscation mechanisms remain effective when attackers have access to increasingly capable automated analysis tools.
+
+
+\subsection{Advanced Code Obfuscation and Runtime Protection}
+
+Potential techniques include \textbf{control-flow flattening, opaque predicates, string encryption, function virtualization, and dynamic code transformation}.
+
+Particular attention could be given to mechanisms that modify or decrypt selected application components during execution, potentially increasing the effort required for static reverse engineering.
+
+These techniques could be evaluated using the same experimental methodology established in this dissertation, comparing attack effort, implementation complexity, application size, and runtime performance.
+
+An additional research direction would involve implementing selected security-sensitive components using native code through the Android Native Development Kit (NDK), investigating whether the transition from managed code to native execution meaningfully changes the attacker's effort.
+
+\subsection{Cross-Platform Evaluation}
+
+Future research could extend the evaluation to other platforms, particularly iOS, to investigate whether differences in operating-system security models influence the effectiveness of client-side software protection.
+
+Potential comparisons include \textbf{application signing, sandboxing, hardware-backed key protection, runtime instrumentation capabilities, and code-obfuscation techniques.}
+
+An additional possibility would be to evaluate different Android versions, hardware configurations, and device security states.
+
+Such experiments could help determine the extent to which the observed results depend on platform-specific characteristics.
 
 \end{document}
 

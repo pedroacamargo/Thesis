@@ -268,7 +268,7 @@ To avoid conflating studies, **these risks must not be included in G1/G2 experim
 
 **Review checklist:** all critical assets appear in the DFD; threats are considered at relevant trust-boundary crossings; all six STRIDE classes have been examined; threats have preconditions, impact and treatment; every hypothesis has a test or an explicit exclusion rationale; positive proof is defined for experimental successes; no control is presented as invulnerable.
 
-**Decisions to validate with the supervisor:** (1) exact paid feature; (2) synthetic dataset schema/size and canonicalization; (3) device, OS and root/debug state; (4) permitted tools/capabilities; (5) key requirements and configuration; (6) T, order and adaptation rules; (7) step/code metrics and benchmarking procedure; (8) differences between testbed flows and real Kouci implementation.
+**Decisions to validate with the supervisor:** (1) exact paid feature; (2) synthetic dataset schema/size and canonicalization; (3) device, OS and root/debug state; (4) permitted tools/capabilities; (5) key requirements and configuration; (6) T, order and adaptation rules; (7) step/code metrics and benchmarking procedure;
 
 ## 13. Sources used
 

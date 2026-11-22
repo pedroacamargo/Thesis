@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1795305307.83807 "/home/mutante/Cybersec/Personal/Projects/Thesis/src/LatexBasics/main.tex" "main.pdf" "main" 1795305309.53248 0
+["pdflatex"] 1795311269.18283 "/home/mutante/Cybersec/Personal/Projects/Thesis/src/LatexBasics/main.tex" "main.pdf" "main" 1795311271.16135 0
   "/home/mutante/.local/share/fonts/FiraSans-Bold.ttf" 1441913576 438028 6028e19089deb3cf7a60d0d00e4638ba ""
   "/home/mutante/.local/share/fonts/FiraSans-MediumItalic.ttf" 1441913576 413096 2b70d3d73007e2afa7325cc211ca7efc ""
   "/home/mutante/.local/share/fonts/FiraSans-Regular.ttf" 1441913576 403924 b0aa1958e34c16cede8af5643a9c285c ""
@@ -13,7 +13,7 @@
   "/home/mutante/.texlive2025/texmf-var/luatex-cache/generic/fonts/otl/lmsans10-regular.luc" 1794080770.80546 127628 6564d9c65a828b7ebd4bb7d5458cea27 ""
   "/home/mutante/.texlive2025/texmf-var/luatex-cache/generic/names/luaotfload-lookup-cache.luc" 1795305105.5815 2407 4a3d06c9e203424480ef736f6823f90a ""
   "/home/mutante/.texlive2025/texmf-var/luatex-cache/generic/names/luaotfload-names.luc.gz" 1795289422.88416 76552 c73075f5cfe9db7f820229306986980a ""
-  "/home/mutante/Cybersec/Personal/Projects/Thesis/src/LatexBasics/main.tex" 1795305305.58683 35486 0f8a55211957b13e15c5d8c83854b72b ""
+  "/home/mutante/Cybersec/Personal/Projects/Thesis/src/LatexBasics/main.tex" 1795311268.97253 46476 94fa47bd0b7c8031f361eb6f0bbeb6d6 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex9.tfm" 1246382020 996 a18840b13b499c08ac2de96a99eda4bc ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1246382020 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -38,6 +38,7 @@
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy6.tfm" 1136768653 1116 933a60c408fc0a863a92debe84b2d294 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy7.tfm" 1136768653 1120 2b3f9b25605010c69bc328bea6ac000f ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy9.tfm" 1136768653 1116 25a7bf822c58caf309a702ef79f4afbb ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb" 1248133631 36299 5f9df58c2139e7edcf37c8fca4bd384d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb" 1248133631 32442 c975af247b6702f7ca0c299af3616b80 ""
   "/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1461363279 71627 94eb9990bed73c364d7f53f960cc8c5b ""
@@ -121,6 +122,7 @@
   "/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo" 1748806692 8448 686612a86f0e04f41ea577f5ec7e83d8 ""
   "/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty" 1579038678 6078 f1cb470c9199e7110a27851508ed7a5c ""
   "/usr/share/texlive/texmf-dist/tex/latex/colortbl/colortbl.sty" 1747945524 12709 4ca3cf5f9f1d551b8a1090fba11ac95d ""
+  "/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty" 1738874546 52272 63d293bc0d496619edb57585740861a2 ""
   "/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty" 1579991033 13886 d1306dcf79a944f6988e688c1785f9ce ""
   "/usr/share/texlive/texmf-dist/tex/latex/float/float.sty" 1137110151 6749 16d2656a1984957e674b149555f1ea1d ""
   "/usr/share/texlive/texmf-dist/tex/latex/fontspec/fontspec-luatex.sty" 1759176595 153606 8c5fb6ea1ec6ccd2c7362602c0d29f5b ""
@@ -207,9 +209,9 @@
   "imgs/STRIDE RE.png" 1795292552.59671 92646 8083ccc8b43a079b531e26cbf88ddef2 ""
   "imgs/cover-water.png" 1794077624.89901 638918 81a5c0a2862991cc2142438b696a77ca ""
   "imgs/kouci-logo.png" 1794077624.90013 315391 c6b3a1a9f84da23f6ea23468764852f1 ""
-  "main.aux" 1795305309.40686 6479 395a981f8f2df91fbb84c4888a420fde "pdflatex"
-  "main.tex" 1795305305.58683 35486 0f8a55211957b13e15c5d8c83854b72b ""
-  "main.toc" 1795305309.40786 2780 101277ba216d67ba288ebdf224eaf0a3 "pdflatex"
+  "main.aux" 1795311271.01654 7757 cc242b4301f451d68347913758eae793 "pdflatex"
+  "main.tex" 1795311268.97253 46476 94fa47bd0b7c8031f361eb6f0bbeb6d6 ""
+  "main.toc" 1795311271.01754 3480 0914b7bcbe575bcca03ee763dcd76e2c "pdflatex"
   (generated)
   "main.aux"
   "main.log"
