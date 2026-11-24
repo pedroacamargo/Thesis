@@ -1,1 +1,0 @@
-- [ ] **Check**: Expiration time of license is working properly
