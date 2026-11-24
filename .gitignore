@@ -2,8 +2,8 @@
 .vscode/
 
 # Third-party scientific publications
-/Assets/**/*.pdf
-/Assets/**/*.zip
+/Studies/**/*.pdf
+/Studies/**/*.zip
 
 # Temporary files
 ~$*.xlsx
