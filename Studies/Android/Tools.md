@@ -32,3 +32,15 @@ First, a list enumerating each tool:
 | 12   | **angr + Z3**             | Explore advanced program analysis               |
 
 **JADX → Smali → Apktool → Frida → Ghidra → Androguard → Experimental measurement**
+
+## The Skills That Matter Most
+
+| Skill                                     | Importance for Kouci | Long-term importance |
+| ----------------------------------------- | -------------------- | -------------------- |
+| DEX and Smali analysis                    | Very high            | Very high            |
+| Java/Kotlin runtime instrumentation       | Very high            | Very high            |
+| ARM64 and ELF reverse engineering         | Medium               | Very high            |
+| Cryptographic implementation analysis     | Very high            | Very high            |
+| Obfuscation and control-flow analysis     | High                 | Very high            |
+| Symbolic execution and automated analysis | Optional             | High                 |
+**Software protection should not be evaluated solely by whether reverse engineering is possible. It should also be evaluated by how much additional effort a protection imposes, under which conditions, and at what cost to the developer and the application's performance.**

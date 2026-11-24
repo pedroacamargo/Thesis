@@ -16,18 +16,16 @@
 
 **Date:** 22/11/2026 - 29/11/2026
 
-- [ ] List relevant tools and techniques for APK reverse engineering and obfuscated-code analysis.
-- [ ] Inventory every article in Assets/ and create a reading matrix.
+- [x] List relevant tools and techniques for APK reverse engineering and obfuscated-code analysis.
+- [x] Inventory every article in Assets/ and create a reading matrix.
 - [ ] Read and summarize the mandatory starting references; schedule remaining articles by relevance.
-- [ ] Develop Kouci Android v1.1.1 and release it by 28/11/2026.
+- [x] Develop Kouci Android v1.1.1 and release it by 28/11/2026.
 - [ ] Complete at least two Android reverse-engineering crackmes.
 - [ ] Extract and analyze a Kouci APK.
-- [ ] Locate premium-feature verification code.
-- [ ] Document how the license verification works.
 - [ ] Analyze obfuscated code in a Kouci APK.
+- [ ] Check how to obfuscate code in React Native with R8.
 - [ ] Prepare a rooted Android testing environment, if compatible with the device and study requirements.
 - [ ] Record the Android version, device model, bootloader status and available instrumentation capabilities.
-- [ ] Document differences between the commercial Kouci APK and the future experimental testbench.
 
 **Deliverables:** `Studies/Android/Static-Reverse-Engineering.md` and `Studies/Android/Tools.md.`
 
