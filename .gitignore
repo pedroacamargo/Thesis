@@ -1,2 +1,9 @@
 /build/
 .vscode/
+
+# Third-party scientific publications
+/Assets/**/*.pdf
+/Assets/**/*.zip
+
+# Temporary files
+~$*.xlsx
